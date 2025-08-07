@@ -37,3 +37,95 @@ Existing works on validator behavior often rely on proprietary or siloed dataset
 On the other hand, simulation environments such as Tenderbake or agent-based frameworks for blockchain consensus offer insights into validator interactions under various protocol designs. However, they do not generate labeled, reusable datasets suited for training AI agents in reinforcement learning environments. Moreover, these environments rarely include ground-truth annotations such as validator class (e.g., honest, Sybil) or time-varying trust scores that are essential for supervised learning and explainability studies.
 
 Our work proposes to integrate these two worlds: the realism of on-chain validator metrics and the control of synthetic simulation environments. By unifying these sources and enriching them with additional annotations and labels, we aim to produce a reusable, well-documented, and benchmark-ready dataset that will accelerate research in AI-guided PoS validator selection, adversarial behavior detection, and governance transparency.
+
+## **2. Dataset Description**
+
+This section outlines the multi-phase methodology for constructing a hybrid dataset tailored to the needs of AI-driven validator selection in Proof-of-Stake (PoS) blockchain networks. The proposed dataset will combine real-world validator telemetry with synthetically simulated behaviors, enriched with engineered features and annotations. The entire process follows a four-phase pipeline: Collect → Generate → Enrich → Finalize.
+
+### **2.1 Data Source and Collection Methodology**
+
+The initial phase involves collecting high-fidelity validator data from active PoS networks, including Ethereum 2.0, Cosmos Hub, and Polkadot. These data are obtained through open-access APIs and public dashboards such as:
+
+- Beaconcha.in and Rated.network for Ethereum 2.0
+
+- Cosmos SDK REST API and block explorers for Cosmos
+
+- Subscan.io and Dune Analytics for Polkadot and parachains
+
+The collected metrics include:
+
+- Validator ID and timestamp
+
+- Uptime percentages
+
+- Missed attestations or proposals
+
+- Slashing and reward history
+
+- Staking amount and delegation details
+
+These logs reflect actual validator behavior and provide the empirical backbone of the dataset, ensuring that the machine learning models are grounded in real-world dynamics and performance.
+
+![DatasetCollection](./assets/CollectData.jpg)
+
+#### **2.2 Generate Synthetic Data**
+
+To complement and extend the real-world data, this phase employs an agent-based simulation environment developed in Python, using libraries such as SimPy, NetworkX, and optionally Gym. The simulation environment mimics a PoS blockchain network where each validator agent operates under a predefined behavioral profile, such as:
+
+- Honest --> follows protocol strictly  
+- Lazy -->  misses blocks intermittently
+- Selfish --> optimizes personal reward at the cost of consensus 
+- Sybil --> controls multiple identities to gain influence
+- Long-range attackers --> rewrites historical chains  
+
+Each simulated run produces time-stamped logs of validator actions, decisions, and outcomes. These synthetic datasets provide behaviorally labeled ground truth, enabling supervised learning and MARL experimentation under controlled adversarial scenarios.
+
+![SyntheticDataset](./assets/GenerateSyntheticData.jpg)
+
+#### **Enrich the Dataset**
+
+![EnrichDataset](./assets/EnrichDataset.jpg)
+
+In this stage, both real and synthetic datasets are integrated and enriched with additional engineered features to facilitate advanced analytics and learning tasks. These enhancements include:
+
+- ***Trust scores:*** A dynamic, composite score computed based on missed blocks, uptime, and slashing history.  
+- ***Message Entropy:*** A measure of randomness or deviation in consensus-related messages.  
+- ***Peer Feedback:***  Ratings inferred from interactions or network topology.  
+- ***Temporal Patterns:*** Validator actions tracked across epochs for time-series modeling  
+
+Behavioral labels are applied using rule-based heuristics and verified simulation states. This results in a hybrid dataset that combines real-world authenticity with simulation-derived control, supporting both supervised classification and multi-agent reinforcement learning (MARL) use cases.
+
+![EnrichDataset](./assets/EnrichDataset.jpg)
+
+#### **Finalize the Dataset**
+
+![FinalizeDataset](./assets/FinalizeDataset.jpg)
+
+The final phase focuses on packaging, documentation, and publication to ensure reproducibility, transparency, and community usability. Key activities include:
+
+- Exporting data in structured formats such as .csv and .json
+
+- Documenting all fields including feature descriptions, data types, and valid ranges
+
+- Generating metadata files and schema documentation
+
+- Assigning version numbers for reproducibility
+
+- Publishing the dataset under an open license on platforms such as GitHub
+
+This ensures that future researchers can seamlessly access, understand, and build upon the dataset for PoS security, fairness, and governance research.
+
+![FinalizeDataset](./assets/FinalizeDataset.jpg)
+
+
+
+### **2.5 Data Collection Pipeline Overview**
+
+The diagram below illustrates the end-to-end roadmap of the dataset development process. It captures the dual-source design (real + synthetic), highlights data enhancement steps, and shows how all artifacts are eventually unified into a standardized dataset ready for machine learning research.
+
+![DataCollectionRoadmap](./assets/DataCollectionRoadmap.jpg)
+
+
+### **2.6 Summary**
+
+The methodology for constructing the dataset employs a methodical, four-phase procedure.  The initial step involves gathering authentic validator logs from operational blockchain networks and incorporating simulated, behavior-labeled data into them.   Incorporating artificial variables such as trust scores and peer assessments into the dataset enhances its behavioral context.   The result is a robust, heterogeneous dataset applicable for various AI research in PoS validator security, encompassing supervised learning, multi-agent reinforcement learning training, and explainable AI experiments.
