@@ -1,52 +1,5 @@
-This repository is a curated dataset for analyzing validator behavior in Proof-of-Stake (PoS) networks like Ethereum 2.0, Cosmos, and Polkadot. It includes both real-world and synthetic data to support machine learning, anomaly detection, and multi-agent reinforcement learning research.
+# Hybrid Dataset Construction for AI-Driven Validator Selection in Proof-of-Stake Blockchain Networks
 
----
+## Abstract
 
-## 📦 What's Inside
-
-### 1. **Real-World Data**
-
-Collected from public APIs and platforms:
-
-* **Ethereum 2.0** (Beaconcha.in, Rated.network)
-* **Cosmos** (Cosmos SDK)
-* **Polkadot** (Subscan.io, Dune Analytics)
-
-Metrics: uptime, missed attestations, proposals, slashing, stake amounts.
-
-### 2. **Synthetic Data**
-
-Simulated using **SimPy** and **NetworkX**:
-
-* Validator behaviors: honest, lazy, selfish, Sybil, long-range attacks
-* Labeled logs for supervised learning and testing
-
-### 3. **Feature Enrichment**
-
-Added features like:
-
-* Trust scores
-* Message entropy
-* Consensus deviation
-* Behavior labels (rule-based)
-
-### 4. **Exported Dataset**
-
-* Formats: CSV, JSON
-* Includes schema, metadata, and versioning
-
----
-
-## 📁 Structure
-
-```
-validator-dataset/
-├── data/                # Real, synthetic, enriched, final
-├── scripts/             # Collection, simulation, feature engineering
-├── assets/              # Diagrams and visuals
-├── schema/              # Field definitions
-├── LICENSE
-└── README.md
-```
-
----
+This work describes a thoughtful approach to creating a hybrid dataset for research into how validators are chosen and behave in Proof-of-Stake (PoS) blockchain networks. Although public data sources offer many validator statistics, they fall short by lacking clear behavioral labels, time-based organization, and examples of adversarial situations—all of which are critical for meaningful data analysis and the development of reliable algorithms. To address these gaps, we have designed a four-step process: first, we gather real-world data from PoS networks like Ethereum 2.0, Cosmos, and Polkadot; next, we generate synthetic data through simulations, carefully labeling various cooperative and adversarial behaviors; we then enhance the dataset with useful features, detailed behavioral notes, and interpretability scores such as trust or reliability; finally, we organize the data to support a wide range of research, including supervised learning and reinforcement learning. By combining real and simulated experiences, and making sure all aspects are clearly documented and organized, our dataset serves as a robust foundation for studying better, more trustworthy ways to select validators in decentralized systems. Above all, our goal is to provide a resource that supports transparent, secure, and fair decision-making in the future of blockchains.
