@@ -128,3 +128,42 @@ The diagram below illustrates the end-to-end roadmap of the dataset development 
 ### **2.6 Summary**
 
 The methodology for constructing the dataset employs a methodical, four-phase procedure.  The initial step involves gathering authentic validator logs from operational blockchain networks and incorporating simulated, behavior-labeled data into them.   Incorporating artificial variables such as trust scores and peer assessments into the dataset enhances its behavioral context.   The result is a robust, heterogeneous dataset applicable for various AI research in PoS validator security, encompassing supervised learning, multi-agent reinforcement learning training, and explainable AI experiments.
+
+
+## **3. Methodology**
+
+The proposed methodology outlines the systematic approach adopted to construct, validate, and utilize a hybrid dataset aimed at advancing AI-driven validator selection in Proof-of-Stake (PoS) blockchain networks. This approach extends the **four-phase pipeline** presented in Section 2—**Collect → Generate → Enrich → Finalize**—into an experimental research framework that enables both **supervised learning** and **Multi-Agent Reinforcement Learning (MARL)**, while embedding explainability for interpretability and accountability.
+
+### **3.1 Training of Multi-Agent Reinforcement Learning (MARL) Agents**
+
+The hybrid dataset will be employed to train MARL agents capable of selecting optimal validators under dynamic network conditions and potential adversarial threats. The training framework will leverage the **Proximal Policy Optimization (PPO)** algorithm, implemented in the **Stable-Baselines3** library, due to its stability and efficiency in large state-action spaces.
+
+The MARL design will incorporate:
+
+- **State Representation:** Multi-dimensional feature vectors including validator uptime, missed attestations, slashing history, trust scores, peer ratings, and consensus deviation metrics.  
+- **Temporal Context:** Use of sequential observation windows to capture evolving validator behavior patterns over multiple epochs.  
+- **Action Space:** Selection or ranking of validators based on predefined constraints (e.g., number of active slots).  
+- **Reward Function:** Balanced between consensus performance, security (avoiding malicious validators), and diversity of selection to prevent centralization.
+
+This training approach will enable agents to optimize validator selection policies not only for performance but also for **network trustworthiness and resilience** against malicious strategies such as Sybil attacks or long-range forks.
+
+### **3.2 Evaluation of Trust Score Dynamics**
+
+An essential part of the methodology involves monitoring and analyzing **trust score dynamics** over time, both in simulated and real-world contexts. Trust scores will be computed per epoch using a weighted aggregation of key performance indicators such as uptime, block proposal frequency, slashing events, and consensus participation.
+
+This evaluation will focus on:
+
+- **Stability:** Measuring whether the MARL policy sustains high trust levels across extended operation periods.  
+- **Adaptability:** Assessing the ability of the model to adjust to changes in validator performance, network topology, or participation rates.  
+- **Resilience:** Testing robustness under injected adversarial conditions, such as the sudden appearance of malicious validators or coordinated attacks.
+
+By analyzing temporal trust score trajectories, the methodology ensures that the proposed AI system can maintain a reliable validator set over time rather than optimizing for short-term rewards alone.
+
+### **3.3 Explainability and Fairness Validation**
+
+Given the critical role of validator selection in PoS security and governance, **explainability** is essential. The methodology integrates **SHAP (SHapley Additive exPlanations)** and **LIME (Local Interpretable Model-agnostic Explanations)** to quantify and visualize the influence of individual features on the model’s decisions.
+
+- **SHAP:** Provides a global and local feature attribution analysis to understand which factors (e.g., uptime, stake, peer ratings) most influence validator selection across multiple decision instances.  
+- **LIME:** Generates local surrogate models to explain individual selection decisions, offering transparency into one-off choices made by the MARL agent.  
+
+These explanations will be recorded as **explanation vectors** in the dataset, enabling independent auditing and fairness analysis. Such interpretability is crucial for detecting potential biases (e.g., consistent preference for high-stake validators at the cost of decentralization) and ensuring compliance with fairness principles in validator governance.
