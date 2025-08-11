@@ -167,3 +167,29 @@ Given the critical role of validator selection in PoS security and governance, *
 - **LIME:** Generates local surrogate models to explain individual selection decisions, offering transparency into one-off choices made by the MARL agent.  
 
 These explanations will be recorded as **explanation vectors** in the dataset, enabling independent auditing and fairness analysis. Such interpretability is crucial for detecting potential biases (e.g., consistent preference for high-stake validators at the cost of decentralization) and ensuring compliance with fairness principles in validator governance.
+
+
+## **4. Ethical Considerations and Data Management**
+
+Ethical compliance and robust data management practices underpin the construction and dissemination of the proposed dataset. This section addresses **privacy**, **security**, and **data-sharing protocols** to ensure integrity and trustworthiness.
+
+### **4.1 Privacy and Confidentiality**
+
+- No **Personally Identifiable Information (PII)** will be collected or stored.  
+- Validator identifiers from real-world data sources will either be anonymized or represented by public blockchain keys that are already publicly accessible.  
+- All synthetic data will be generated within a controlled simulation environment, ensuring no linkage to private or sensitive identities.
+
+### **4.2 Data Storage and Security**
+
+- During preprocessing and simulation, all intermediate and raw data will be stored in secure, access-controlled local environments.  
+- Backups will be maintained in a **private GitHub repository**, protected using **encrypted GitHub Secrets** for authentication.  
+- Upon finalization, the dataset will be archived on reputable long-term hosting platforms such as **Zenodo** or **Hugging Face Datasets**, ensuring data integrity and persistent accessibility.
+
+### **4.3 Data Sharing and Dissemination**
+
+- The dataset will be released under the **Creative Commons Attribution 4.0 International (CC-BY-4.0)** license, promoting academic reuse and derivative work.  
+- A complete **documentation package** will accompany the dataset, including:
+  - Detailed feature descriptions and schema definitions  
+  - Data collection and simulation methodologies  
+  - Example usage scripts in Python for loading, preprocessing, and integration into AI workflows  
+- Public access will be provided through a **dedicated GitHub repository**, and a **DOI (Digital Object Identifier)** will be assigned for citation in academic publications.
