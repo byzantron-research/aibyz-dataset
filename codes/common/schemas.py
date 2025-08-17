@@ -20,8 +20,8 @@ class Validator(BaseModel):
     status: Optional[str] = None
     balance: Optional[int] = None
     effective_balance: Optional[int] = None
-    commission: Optional[float] = None
     slashed: Optional[bool] = None
+    withdrawal_address: Optional[str] = None
 
 class Attestation(BaseModel):
     chain_id: str
