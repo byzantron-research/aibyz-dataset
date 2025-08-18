@@ -1,30 +1,56 @@
+"""Feature generation for trust signals on validators.
+
+This script computes simple trust signals for validators on a daily basis.
+Currently it measures the effective balance as a proxy trust score and
+counts the number of penalties incurred by each validator. The output is
+written to a partitioned directory under the ``features`` layer.
+"""
+
+from __future__ import annotations
+
 from pathlib import Path
+from typing import Dict
 import pandas as pd
-import numpy as np
-from common.storage import part_path, write_rows
+from common.storage import read_any, part_path, write_rows
 
-def _z(x):
-    if len(x) == 0: return x
-    mu, sd = np.nanmean(x), np.nanstd(x)
-    if sd == 0 or np.isnan(sd): return np.zeros_like(x)
-    return (x - mu) / sd
+def build_trust_signals_daily(cfg: Dict[str, str], date: str) -> None:
+    """Compute daily trust signals for validators and persist them to disk.
 
-def build_trust_signals_daily(cfg: dict, date: str):
-    root = Path(cfg.get("root","."))
-    chain = cfg["chain_id"]
-    net = cfg["network"]
-    fmt = cfg.get("format","parquet")
+    Currently the trust score is a direct mapping from the ``effective_balance``
+    field. A count of penalties incurred per validator is also emitted.
 
-    stats_p = part_path(root, "features", "validator_stats_daily", chain, net, date)
-    files = list(stats_p.glob("*.parquet")) + list(stats_p.glob("*.csv"))
-    if not files: return
-    df = pd.read_parquet(files[0]) if files[0].suffix==".parquet" else pd.read_csv(files[0])
-
-    # Simple composite: z(attestation_rate) + 0.5*z(proposed_blocks)
-    df["z_att"] = _z(df["attestation_rate"].astype(float))
-    df["z_prop"] = _z(df["proposed_blocks"].astype(float))
-    df["trust_score_v1"] = df["z_att"] + 0.5*df["z_prop"]
-
-    out_rows = df[["chain_id","network","date","validator_id","trust_score_v1"]].to_dict(orient="records")
-    out_dir = part_path(root, "features", "trust_signals_daily", chain, net, date)
-    write_rows(out_rows, out_dir, fmt)
+    :param cfg: Chain configuration dictionary containing at least
+      ``chain_id`` and ``network``, and optionally ``root`` and ``format``.
+    :param date: The date partition (``YYYY‑MM‑DD``) to process.
+    """
+    chain_id = cfg["chain_id"]
+    network = cfg["network"]
+    root = Path(cfg.get("root", "data"))
+    fmt = cfg.get("format", "parquet")
+    vc = read_any(root, "curated", "validator_core", chain_id, network, date)
+    pc = read_any(root, "curated", "penalty_core", chain_id, network, date)
+    rows: list = []
+    if not vc.empty:
+        slash_counts: Dict[str, int] = {}
+        if not pc.empty and "validator_id" in pc.columns:
+            # Crude: count penalties per validator (if available)
+            slash_counts = (
+                pc.groupby("validator_id")["penalty_type"].count().to_dict()
+            )
+        for _, r in vc.iterrows():
+            vid = r["validator_id"]
+            eff_bal = r.get("effective_balance")
+            rows.append(
+                {
+                    "chain_id": chain_id,
+                    "network": network,
+                    "date": date,
+                    "validator_id": vid,
+                    "trust_score_v0": None
+                    if pd.isna(eff_bal)
+                    else float(eff_bal or 0.0),
+                    "penalty_count_v0": int(slash_counts.get(vid, 0)),
+                }
+            )
+    out = part_path(root, "features", "trust_signals_daily", chain_id, network, date)
+    write_rows(rows, out, fmt)

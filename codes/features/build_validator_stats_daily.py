@@ -1,62 +1,64 @@
+"""Feature generation for validator statistics.
+
+This script defines a helper function to build daily statistics about
+validators, such as counts and average balances, as well as counts of
+blocks. The resulting dataset is written to a partitioned directory under
+the ``features`` layer.
+"""
+
+from __future__ import annotations
+
 from pathlib import Path
+from typing import Dict
 import pandas as pd
-import numpy as np
-from common.storage import part_path, write_rows
+from common.storage import part_path, read_any, write_rows
 
-def build_validator_stats_daily(cfg: dict, date: str):
-    root = Path(cfg.get("root","."))
-    chain = cfg["chain_id"]
-    net = cfg["network"]
-    fmt = cfg.get("format","parquet")
+def build_validator_stats_daily(cfg: Dict[str, str], date: str) -> None:
+    """Compute daily validator statistics and persist them to disk.
 
-    # Inputs
-    vals_p = part_path(root, "curated", "validator_core", chain, net, date)
-    atts_p = part_path(root, "curated", "attestation_core", chain, net, date)
-    blocks_p = part_path(root, "curated", "block_core", chain, net, date)
+    The function reads curated ``validator_core`` and ``block_core`` tables
+    for a given chain and network, computes summary statistics such as the
+    number of unique validators, average balances and number of blocks, and
+    writes the results as a single partition to the ``features`` layer.
 
-    def read_any(p: Path):
-        if p.exists():
-            fs = list(p.glob("*.parquet")) + list(p.glob("*.csv"))
-            if not fs: return pd.DataFrame()
-            dfs = [pd.read_parquet(f) if f.suffix==".parquet" else pd.read_csv(f) for f in fs]
-            return pd.concat(dfs, ignore_index=True)
-        return pd.DataFrame()
+    :param cfg: Chain configuration dictionary containing at least
+      ``chain_id`` and ``network``, and optionally ``root`` and ``format``.
+    :param date: The date partition (``YYYY‑MM‑DD``) to process.
+    """
+    chain_id = cfg["chain_id"]
+    network = cfg["network"]
+    root = Path(cfg.get("root", "data"))
+    fmt = cfg.get("format", "parquet")
 
-    vals = read_any(vals_p)
-    atts = read_any(atts_p)
-    blocks = read_any(blocks_p)
+    vc = read_any(root, "curated", "validator_core", chain_id, network, date)
+    bc = read_any(root, "curated", "block_core", chain_id, network, date)
 
-    # Minimal heuristic features (will refine later)
-    out_rows = []
-    if not vals.empty:
-        # Counts
-        proposed_blocks = 0
-        if not blocks.empty and "proposer_index" in blocks.columns and blocks["proposer_index"].notna().any():
-            # Only available for eth2
-            by_prop = blocks.groupby("proposer_index").size().to_dict()
-        else:
-            by_prop = {}
-
-        # Attestation stats (eth2 only)
-        if not atts.empty:
-            total_atts = len(atts)
-            att_rate = 1.0  # per-validator normalization not available without validator_index expansion
-        else:
-            total_atts = 0
-            att_rate = np.nan
-
-        for _, v in vals.iterrows():
-            out_rows.append(dict(
-                chain_id=chain, network=net, date=date, validator_id=str(v["validator_id"]),
-                attestation_rate=att_rate,
-                avg_inclusion_delay=np.nan,   # needs committee expansion
-                missed_attestations=np.nan,   # requires per-validator trace
-                proposed_blocks=by_prop.get(int(v["validator_id"]) if str(v["validator_id"]).isdigit() else -1, 0),
-                slash_count_30d=np.nan,
-                stake_share=np.nan,
-                churn_events_30d=np.nan,
-                uptime_estimate=np.nan
-            ))
-
-    out_dir = part_path(root, "features", "validator_stats_daily", chain, net, date)
-    write_rows(out_rows, out_dir, fmt)
+    rows: list = []
+    if not vc.empty:
+        rows.append(
+            {
+                "chain_id": chain_id,
+                "network": network,
+                "date": date,
+                "num_validators": int(vc["validator_id"].nunique()),
+                "avg_balance": (
+                    vc["balance"].mean() if "balance" in vc.columns else None
+                ),
+                "avg_effective_balance": (
+                    vc["effective_balance"].mean()
+                    if "effective_balance" in vc.columns
+                    else None
+                ),
+            }
+        )
+    if not bc.empty:
+        rows.append(
+            {
+                "chain_id": chain_id,
+                "network": network,
+                "date": date,
+                "num_blocks": int(bc["height_or_slot"].nunique()),
+            }
+        )
+    out = part_path(root, "features", "validator_stats_daily", chain_id, network, date)
+    write_rows(rows, out, fmt)
