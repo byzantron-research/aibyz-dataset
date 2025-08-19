@@ -1,20 +1,20 @@
-# Output format + partitioning
-format: parquet  # parquet|csv
-root: "."        # where raw/ curated/ features/ live under dataCollection
+format: parquet
+root: "data"
 
-# Chains & endpoints
 chains:
   - chain_id: eth2
     network: mainnet
-    beacon: "http://localhost:5052"   # Prefer local node
-    lookback_slots: 512               # used when --limit not given
+    beacon: " "        # or provider Beacon REST base
+    headers: {"x-api-key": "API KEY"}                             # e.g. {"x-api-key": "YOUR_KEY"}
+    lookback_slots: 512
 
   - chain_id: cosmos
-    network: cosmoshub-4
-    rest: "https://cosmos-api.polkachu.com"
+    network: cosmoshub
+    lcd: "https://cosmos-lcd.quickapi.com"  # replace with your node/LCD
+    headers: {}                             # optional
     lookback_blocks: 2000
 
   - chain_id: polkadot
     network: mainnet
-    ws: "wss://rpc.polkadot.io"
-    lookback_blocks: 1000
+    rpc: "wss://rpc.polkadot.io"            # or your node
+    lookback_blocks: 1024
