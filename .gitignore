@@ -1,2 +1,4 @@
 venv/
 minimalApproach/code/.env
+minimalApproach/.env
+.env

@@ -26,16 +26,22 @@ def parse_args() -> argparse.Namespace:
                     help="Send key in header or query (default: env/API_KEY_TRANSPORT or header)")
     ap.add_argument("--sleep", type=float, default=None, help="Delay between calls (default ~6.2s)")
     ap.add_argument("--timeout", type=int, default=None, help="HTTP timeout seconds (default 30)")
-    ap.add_argument("--out-dir", default=None, help="Output dir (default: data/eth2/mainnet)")
+    ap.add_argument("--out-dir", default=None,
+                help="Output dir (default: data/eth2/mainnet)")
+
     ap.add_argument("--out-prefix", default="validators_mvp", help="Output filename prefix")
     return ap.parse_args()
 
 def main() -> None:
-    args = parse_args()
-
+# File: minimalApproach/code/cli.py
     base = args.api_base or get_api_base()
     key  = args.api_key or get_api_key()
     transport = args.key_transport or get_api_key_transport()
+
+    # Warn if no API key is configured
+    if not key:
+        print("[WARN] No API key provided; requests may fail or be rejected.", file=sys.stderr)
+
     sleep = args.sleep if args.sleep is not None else get_rate_limit_seconds()
     timeout = args.timeout if args.timeout is not None else get_timeout_seconds()
 
@@ -46,6 +52,7 @@ def main() -> None:
         rate_limit_seconds=sleep,
         timeout_seconds=timeout,
     )
+      
     # Always use 'eth_dataset/data/ethereum' as output directory
     out_dir = get_out_dir('eth_dataset/data/ethereum')
 
