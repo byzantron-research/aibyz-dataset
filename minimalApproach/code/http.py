@@ -29,21 +29,8 @@ class HttpClient:
                 if now < self._next_at:  
                     time.sleep(self._next_at - now)  
                 self._next_at = max(now, self._next_at) + self.rate_limit_seconds 
-
-    def _build_url(self, path: str) -> str:
-        return f"{self.base_url.rstrip('/')}/{path.lstrip('/')}"
-
-    def _inject_key(self, params: Optional[Dict[str, Any]], headers: Dict[str, str]) -> Dict[str, Any]:
-        if self.api_key_transport == "header":
-            headers["X-API-KEY"] = self.api_key
-        elif self.api_key_transport == "query":
-            if params is None:
-                params = {}
-            params["apikey"] = self.api_key
-        return params or {}
-
     def get_json(self, path: str, params: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
-        headers = {"User-Agent": "aibyz-collector/0.1 (+minimal)"}
+        headers = {"User-Agent": "aibyz-collector/0.1 (+minimal)", "apikey": self.api_key}
         params = self._inject_key(params, headers)
         url = self._build_url(path)
                
@@ -65,5 +52,5 @@ class HttpClient:
             return response.json()  
         except ValueError as e:  
             # Surface body for diagnostics without logging secrets  
-            raise RuntimeError(f"Non-JSON response from {url}: {response.text[:256]}") from e  
-        
+            raise RuntimeError(f"Non-JSON response from {url}: {response.text[:256]}") from e
+

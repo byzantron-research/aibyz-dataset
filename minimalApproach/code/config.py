@@ -14,7 +14,9 @@ try:
         Path(__file__).resolve().parents[2] / ".env",      # repo-root/.env (best-effort)  
         Path.cwd() / ".env",                               # current working directory  
     ]  
-    for p in [c for c in candidates if c and p is not None]:  
+    for p in candidates:
+        if p is None:
+            continue
         try:  
             if p.is_file() and load_dotenv(p):  
                 break  

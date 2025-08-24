@@ -1,6 +1,7 @@
 from __future__ import annotations
 import argparse
 import sys
+import os
 
 from eth_dataset.config import (
     get_api_base,
@@ -33,7 +34,8 @@ def parse_args() -> argparse.Namespace:
     return ap.parse_args()
 
 def main() -> None:
-# File: minimalApproach/code/cli.py
+    args = parse_args()
+
     base = args.api_base or get_api_base()
     key  = args.api_key or get_api_key()
     transport = args.key_transport or get_api_key_transport()
@@ -53,8 +55,9 @@ def main() -> None:
         timeout_seconds=timeout,
     )
       
-    # Always use 'eth_dataset/data/ethereum' as output directory
-    out_dir = get_out_dir('eth_dataset/data/ethereum')
+    # Construct output directory path based on args.out_dir or default
+    out_dir = args.out_dir if args.out_dir is not None else get_out_dir()
+    out_dir = os.path.join(out_dir, args.out_prefix)
 
     indexes = load_validators_from_args(args.validators, args.validators_file)
     if not indexes:
@@ -65,7 +68,7 @@ def main() -> None:
     for r in rows:
         r["trust_v0"] = compute_trust_v0(r)
 
-    write_outputs(rows, out_dir, prefix=args.out_prefix)
+    write_outputs(rows, out_dir)
     print(f"[OK] Wrote outputs to {out_dir}")
 
 if __name__ == "__main__":
