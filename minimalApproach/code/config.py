@@ -23,7 +23,8 @@ def get_api_base() -> str:
     return os.getenv("API_BASE", API_BASE_DEFAULT)
 
 def get_api_key() -> Optional[str]:
-    return os.getenv("BEACONCHAIN_API_KEY")
+    key = os.getenv("BEACONCHAIN_API_KEY", "").strip()
+    return key if key else None
 
 def get_api_key_transport() -> str:
     """

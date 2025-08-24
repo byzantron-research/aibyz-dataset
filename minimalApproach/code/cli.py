@@ -47,7 +47,7 @@ def main() -> None:
         timeout_seconds=timeout,
     )
     # Always use 'eth_dataset/data/ethereum' as output directory
-    out_dir = get_out_dir('eth_dataset/data/ethereum')
+    out_dir = args.out_dir if args.out_dir is not None else get_out_dir()
 
     indexes = load_validators_from_args(args.validators, args.validators_file)
     if not indexes:
