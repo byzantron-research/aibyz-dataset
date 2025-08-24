@@ -4,14 +4,25 @@ from pathlib import Path
 from typing import Optional
 
 # Optional: load .env if python-dotenv is installed
-try:
-    from dotenv import load_dotenv, find_dotenv  # type: ignore
-    # Try to locate a .env up the tree; fall back to repo root/".env"
-    loaded = load_dotenv(find_dotenv())
-    if not loaded:
-        repo_root = Path(__file__).resolve().parents[1]  # folder containing eth_dataset/
-        load_dotenv(repo_root / ".env")
-except Exception:
+try:  
+    from dotenv import load_dotenv, find_dotenv  # type: ignore  
+    # Try common locations without throwing  
+    candidates = [  
+        Path(find_dotenv(usecwd=True)) if find_dotenv(usecwd=True) else None,  
+        Path(__file__).resolve().parent / ".env",          # minimalApproach/code/.env  
+        Path(__file__).resolve().parents[1] / ".env",      # minimalApproach/.env  
+        Path(__file__).resolve().parents[2] / ".env",      # repo-root/.env (best-effort)  
+        Path.cwd() / ".env",                               # current working directory  
+    ]  
+    for p in candidates:
+        if p is None:
+            continue
+        try:  
+            if p.is_file() and load_dotenv(p):  
+                break  
+        except Exception:  
+            continue  
+except Exception:  
     pass
 
 API_BASE_DEFAULT = "https://beaconcha.in/api/v1"
@@ -23,7 +34,8 @@ def get_api_base() -> str:
     return os.getenv("API_BASE", API_BASE_DEFAULT)
 
 def get_api_key() -> Optional[str]:
-    return os.getenv("BEACONCHAIN_API_KEY")
+    key = os.getenv("BEACONCHAIN_API_KEY", "").strip()
+    return key if key else None
 
 def get_api_key_transport() -> str:
     """
