@@ -1,6 +1,6 @@
 import unittest
 from eth_dataset.config import get_api_base, get_api_key, get_api_key_transport, get_rate_limit_seconds, get_timeout_seconds, get_out_dir
-from eth_dataset.http_client import HttpClient
+from eth_dataset.http import HttpClient
 from eth_dataset.beaconchain import get_validator_overview, get_validator_performance
 from eth_dataset.collectors.performance import collect_validator_rows
 from eth_dataset.collectors.validators import load_validators_from_args
