@@ -1,7 +1,7 @@
 from __future__ import annotations
 import argparse
 import sys
-import os
+from pathlib import Path
 
 from eth_dataset.config import (
     get_api_base,
@@ -27,9 +27,7 @@ def parse_args() -> argparse.Namespace:
                     help="Send key in header or query (default: env/API_KEY_TRANSPORT or header)")
     ap.add_argument("--sleep", type=float, default=None, help="Delay between calls (default ~6.2s)")
     ap.add_argument("--timeout", type=int, default=None, help="HTTP timeout seconds (default 30)")
-    ap.add_argument("--out-dir", default=None,
-                help="Output dir (default: data/eth2/mainnet)")
-
+    ap.add_argument("--out-dir", default="eth_dataset/data/ethereum", help="Output dir (default: eth_dataset/data/ethereum)")
     ap.add_argument("--out-prefix", default="validators_mvp", help="Output filename prefix")
     return ap.parse_args()
 
@@ -54,10 +52,15 @@ def main() -> None:
         rate_limit_seconds=sleep,
         timeout_seconds=timeout,
     )
-      
-    # Construct output directory path based on args.out_dir or default
-    out_dir = args.out_dir if args.out_dir is not None else get_out_dir()
-    out_dir = os.path.join(out_dir, args.out_prefix)
+    # Always use 'eth_dataset/data/ethereum' as output directory
+    out_dir = Path(args.out_dir).resolve()
+
+    # Validate and create the directory if it doesn't exist
+    try:
+        out_dir.mkdir(parents=True, exist_ok=True)
+    except Exception as e:
+        print(f"[ERROR] Failed to create output directory {out_dir}: {e}", file=sys.stderr)
+        sys.exit(1)
 
     indexes = load_validators_from_args(args.validators, args.validators_file)
     if not indexes:
