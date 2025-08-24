@@ -1,5 +1,7 @@
 # Copied from http.py to resolve naming conflict
 import requests
+import threading
+import time
 from typing import Any, Dict, Optional
 import threading
 import time
@@ -35,7 +37,7 @@ class HttpClient:
         return params or {}
 
     def get_json(self, path: str, params: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
-        headers = {}
+        headers = {"User-Agent": "aibyz-collector/0.1 (+minimal)", "apikey": self.api_key}
         params = self._inject_key(params, headers)
         url = self._build_url(path)
 
