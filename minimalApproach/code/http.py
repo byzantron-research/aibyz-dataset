@@ -28,13 +28,14 @@ class HttpClient:
         return f"{self.base_url}/{path.lstrip('/')}"
     
     def _inject_key(self, params: Optional[Dict[str, Any]], headers: Dict[str, str]) -> Dict[str, Any]:
-        if self.api_key_transport == "header":
-            headers["X-API-KEY"] = self.api_key
-        elif self.api_key_transport == "query":
-            if params is None:
-                params = {}
-            params["apikey"] = self.api_key
-        return params or {}
+        if self.api_key_transport != "query":
+            raise ValueError("Only 'query' transport is supported")
+
+        if params is None:
+            params = {}
+        params["apikey"] = self.api_key
+
+        return params
 
     def get_json(self, path: str, params: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
         headers = {"User-Agent": "aibyz-collector/0.1 (+minimal)", "apikey": self.api_key}

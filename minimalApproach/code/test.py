@@ -31,12 +31,20 @@ class TestConfig(unittest.TestCase):
 
 class TestHttpClient(unittest.TestCase):
     def test_init(self):
-        client = HttpClient("https://example.com", "dummy_key", "header", 1.0, 10)
+        client = HttpClient("https://example.com", "dummy_key", "query", 1.0, 10)
         self.assertIsInstance(client, HttpClient)
+
+    def test_inject_key(self):
+        client = HttpClient("https://example.com", "dummy_key", "query", 1.0, 10)
+        params = client._inject_key(None, {})
+        self.assertEqual(params["apikey"], "dummy_key")
+        headers = {}
+        client._inject_key(params, headers)
+        self.assertEqual(headers, {})
 
 class TestBeaconchain(unittest.TestCase):
     def setUp(self):
-        self.client = HttpClient("https://example.com", "dummy_key", "header", 1.0, 10)
+        self.client = HttpClient("https://example.com", "dummy_key", "query", 1.0, 10)
 
     def test_get_validator_overview(self):
         # Should handle error gracefully (mocked)
@@ -53,7 +61,7 @@ class TestBeaconchain(unittest.TestCase):
 
 class TestCollectors(unittest.TestCase):
     def setUp(self):
-        self.client = HttpClient("https://example.com", "dummy_key", "header", 1.0, 10)
+        self.client = HttpClient("https://example.com", "dummy_key", "query", 1.0, 10)
 
     def test_collect_validator_rows(self):
         try:
