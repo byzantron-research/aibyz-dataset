@@ -1,12 +1,11 @@
 import unittest
-from eth_dataset.config import get_api_base, get_api_key, get_api_key_transport, get_rate_limit_seconds, get_timeout_seconds, get_out_dir
-from eth_dataset.http import HttpClient
-from eth_dataset.beaconchain import get_validator_overview, get_validator_performance
-from eth_dataset.collectors.performance import collect_validator_rows
-from eth_dataset.collectors.validators import load_validators_from_args
-from eth_dataset.storage.io import write_outputs
+from config import get_api_base, get_api_key, get_api_key_transport, get_rate_limit_seconds, get_timeout_seconds, get_out_dir
+from http_client import HttpClient
+from beaconchain import get_validator_overview, get_validator_performance
+from collectors.performance import collect_validator_rows
+from collectors.validators import load_validators_from_args
+from storage.io import write_outputs
 from pathlib import Path
-import os
 
 class TestConfig(unittest.TestCase):
     def test_get_api_base(self):

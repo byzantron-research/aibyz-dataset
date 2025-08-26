@@ -2,3 +2,4 @@ venv/
 minimalApproach/code/.env
 minimalApproach/.env
 .env
+minimalApproach/code/data/ethereum/validators_mvp.csv
