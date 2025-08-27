@@ -3,19 +3,18 @@ import argparse
 import sys
 from pathlib import Path
 
-from eth_dataset.config import (
+from config import (
     get_api_base,
     get_api_key,
     get_api_key_transport,
     get_rate_limit_seconds,
     get_timeout_seconds,
-    get_out_dir,
 )
-from eth_dataset.http import HttpClient
-from eth_dataset.collectors.validators import load_validators_from_args
-from eth_dataset.collectors.performance import collect_validator_rows
-from eth_dataset.features.trust import compute_trust_v0
-from eth_dataset.storage.io import write_outputs
+from http_client import HttpClient
+from collectors.validators import load_validators_from_args
+from collectors.performance import collect_validator_rows
+from features.trust import compute_trust_v0
+from storage.io import write_outputs
 
 def parse_args() -> argparse.Namespace:
     ap = argparse.ArgumentParser(description="ETH-only dataset collector (Beaconcha.in /api/v1)")
@@ -27,7 +26,7 @@ def parse_args() -> argparse.Namespace:
                     help="Send key in header or query (default: env/API_KEY_TRANSPORT or header)")
     ap.add_argument("--sleep", type=float, default=None, help="Delay between calls (default ~6.2s)")
     ap.add_argument("--timeout", type=int, default=None, help="HTTP timeout seconds (default 30)")
-    ap.add_argument("--out-dir", default="eth_dataset/data/ethereum", help="Output dir (default: eth_dataset/data/ethereum)")
+    ap.add_argument("--out-dir", default="data/ethereum", help="Output dir (default: data/ethereum)")
     ap.add_argument("--out-prefix", default="validators_mvp", help="Output filename prefix")
     return ap.parse_args()
 

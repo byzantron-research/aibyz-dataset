@@ -7,9 +7,10 @@ def write_outputs(rows: List[Dict[str, Any]], out_dir: Path, prefix: str = "vali
     df = pd.DataFrame(rows)
     out_dir.mkdir(parents=True, exist_ok=True)
     csv_path = out_dir / f"{prefix}.csv"
-    pq_path  = out_dir / f"{prefix}.parquet"
+
+    # Append to CSV if it exists
+    if csv_path.exists():
+        existing_df = pd.read_csv(csv_path)
+        df = pd.concat([existing_df, df], ignore_index=True)
+
     df.to_csv(csv_path, index=False)
-    try:
-        df.to_parquet(pq_path, index=False)   # requires pyarrow or fastparquet
-    except Exception:
-        pass

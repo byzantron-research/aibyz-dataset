@@ -3,8 +3,6 @@ import requests
 import threading
 import time
 from typing import Any, Dict, Optional
-import threading
-import time
 
 class HttpClient:
     def __init__(
@@ -28,12 +26,14 @@ class HttpClient:
         return f"{self.base_url}/{path.lstrip('/')}"
     
     def _inject_key(self, params: Optional[Dict[str, Any]], headers: Dict[str, str]) -> Dict[str, Any]:
-        if self.api_key_transport != "query":
-            raise ValueError("Only 'query' transport is supported")
-
-        if params is None:
-            params = {}
-        params["apikey"] = self.api_key
+        if self.api_key_transport == "query":
+            if params is None:
+                params = {}
+            params["apikey"] = self.api_key
+        elif self.api_key_transport == "header":
+            headers["Authorization"] = f"Bearer {self.api_key}"
+        else:
+            raise ValueError("Unsupported transport method")
 
         return params
 

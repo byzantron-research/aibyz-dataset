@@ -1,6 +1,6 @@
 from __future__ import annotations
 from typing import Dict, Any
-from .http import HttpClient
+from .http_client import HttpClient
 
 # Beaconcha.in /api/v1 endpoints relevant for validator collection
 
